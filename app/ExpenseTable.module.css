@@ -1,0 +1,23 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: #fff;
+}
+
+.th, .td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.th {
+  background: #e9ecef;
+}
+
+.removeBtn {
+  color: #dc3545;
+  background: none;
+  border: none;
+  cursor: pointer;
+}

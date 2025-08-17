@@ -1,0 +1,10 @@
+.tfoot td {
+  font-weight: bold;
+  background: #f1f3f5;
+}
+
+.td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
