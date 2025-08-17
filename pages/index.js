@@ -28,6 +28,7 @@ function ExpenseDashboard() {
     desc: '',
     amount: ''
   });
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     async function loadExpenses() {
@@ -53,15 +54,21 @@ function ExpenseDashboard() {
     e.preventDefault();
     setError(null);
     try {
+      const method = editingId ? 'PUT' : 'POST';
       const res = await fetch('/api/expenses', {
-        method: 'POST',
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
+        body: JSON.stringify({ ...form, id: editingId })
       });
-      if (!res.ok) throw new Error('Failed to add expense');
-      const newExp = await res.json();
-      setExpenses((prev) => [newExp, ...prev]);
+      if (!res.ok) throw new Error(editingId ? 'Failed to update expense' : 'Failed to add expense');
+      const saved = await res.json();
+      if (editingId) {
+        setExpenses((prev) => prev.map((exp) => (exp.id === saved.id ? saved : exp)));
+      } else {
+        setExpenses((prev) => [saved, ...prev]);
+      }
       setForm({ date: new Date().toISOString().substr(0, 10), desc: '', amount: '' });
+      setEditingId(null);
     } catch (err) {
       setError(err.message);
     }
@@ -78,6 +85,15 @@ function ExpenseDashboard() {
     }
   };
 
+  const editExpense = (exp) => {
+    setForm({
+      date: new Date(exp.date).toISOString().substr(0, 10),
+      desc: exp.desc,
+      amount: exp.amount.toString(),
+    });
+    setEditingId(exp.id);
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p role="alert">Error: {error}</p>;
 
@@ -90,7 +106,10 @@ function ExpenseDashboard() {
         <input type="date" id="date" value={form.date} onChange={handleChange} required />
         <input type="text" id="desc" value={form.desc} onChange={handleChange} placeholder="Description" required />
         <input type="number" id="amount" value={form.amount} onChange={handleChange} placeholder="Amount" min="0.01" step="0.01" required />
-        <button type="submit">Add Expense</button>
+        <button type="submit">{editingId ? 'Update' : 'Add'} Expense</button>
+        {editingId && (
+          <button type="button" onClick={() => { setEditingId(null); setForm({ date: new Date().toISOString().substr(0, 10), desc: '', amount: '' }); }}>Cancel</button>
+        )}
       </form>
       <table id="expense-table">
         <thead>
@@ -98,7 +117,7 @@ function ExpenseDashboard() {
             <th>Date</th>
             <th>Description</th>
             <th>Amount ($)</th>
-            <th>Action</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -107,7 +126,10 @@ function ExpenseDashboard() {
               <td>{new Date(exp.date).toLocaleDateString()}</td>
               <td>{exp.desc}</td>
               <td>${exp.amount.toFixed(2)}</td>
-              <td><button className="remove-btn" onClick={() => removeExpense(exp.id)}>Remove</button></td>
+              <td>
+                <button onClick={() => editExpense(exp)}>Edit</button>
+                <button className="remove-btn" onClick={() => removeExpense(exp.id)}>Remove</button>
+              </td>
             </tr>
           ))}
         </tbody>
