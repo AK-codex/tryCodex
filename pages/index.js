@@ -25,7 +25,7 @@ function ExpenseDashboard() {
   const [error, setError] = useState(null);
   const [form, setForm] = useState({
     date: new Date().toISOString().substr(0, 10),
-    desc: '',
+    description: '',
     amount: ''
   });
   const [editingId, setEditingId] = useState(null);
@@ -67,7 +67,7 @@ function ExpenseDashboard() {
       } else {
         setExpenses((prev) => [saved, ...prev]);
       }
-      setForm({ date: new Date().toISOString().substr(0, 10), desc: '', amount: '' });
+      setForm({ date: new Date().toISOString().substr(0, 10), description: '', amount: '' });
       setEditingId(null);
     } catch (err) {
       setError(err.message);
@@ -88,7 +88,7 @@ function ExpenseDashboard() {
   const editExpense = (exp) => {
     setForm({
       date: new Date(exp.date).toISOString().substr(0, 10),
-      desc: exp.desc,
+      description: exp.description,
       amount: exp.amount.toString(),
     });
     setEditingId(exp.id);
@@ -104,11 +104,11 @@ function ExpenseDashboard() {
       <h2>Daily Expense Dashboard</h2>
       <form id="expense-form" onSubmit={handleSubmit}>
         <input type="date" id="date" value={form.date} onChange={handleChange} required />
-        <input type="text" id="desc" value={form.desc} onChange={handleChange} placeholder="Description" required />
+        <input type="text" id="description" value={form.description} onChange={handleChange} placeholder="Description" required />
         <input type="number" id="amount" value={form.amount} onChange={handleChange} placeholder="Amount" min="0.01" step="0.01" required />
         <button type="submit">{editingId ? 'Update' : 'Add'} Expense</button>
         {editingId && (
-          <button type="button" onClick={() => { setEditingId(null); setForm({ date: new Date().toISOString().substr(0, 10), desc: '', amount: '' }); }}>Cancel</button>
+          <button type="button" onClick={() => { setEditingId(null); setForm({ date: new Date().toISOString().substr(0, 10), description: '', amount: '' }); }}>Cancel</button>
         )}
       </form>
       <table id="expense-table">
@@ -124,7 +124,7 @@ function ExpenseDashboard() {
           {expenses.map((exp) => (
             <tr key={exp.id}>
               <td>{new Date(exp.date).toLocaleDateString()}</td>
-              <td>{exp.desc}</td>
+              <td>{exp.description}</td>
               <td>${exp.amount.toFixed(2)}</td>
               <td>
                 <button onClick={() => editExpense(exp)}>Edit</button>

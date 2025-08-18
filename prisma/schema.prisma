@@ -10,8 +10,8 @@ generator client {
 }
 
 model Expense {
-  id     Int      @id @default(autoincrement())
-  date   DateTime
-  desc   String
-  amount Float
+  id          Int      @id @default(autoincrement())
+  date        DateTime
+  description String
+  amount      Float
 }

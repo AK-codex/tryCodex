@@ -14,11 +14,11 @@ export default async function handler(req, res) {
       break;
     case 'POST':
       try {
-        const { date, desc, amount } = req.body;
+        const { date, description, amount } = req.body;
         const expense = await prisma.expense.create({
           data: {
             date: new Date(date),
-            desc,
+            description,
             amount: parseFloat(amount),
           },
         });
@@ -29,12 +29,12 @@ export default async function handler(req, res) {
       break;
     case 'PUT':
       try {
-        const { id, date, desc, amount } = req.body;
+        const { id, date, description, amount } = req.body;
         const expense = await prisma.expense.update({
           where: { id: parseInt(id, 10) },
           data: {
             date: new Date(date),
-            desc,
+            description,
             amount: parseFloat(amount),
           },
         });
