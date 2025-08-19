@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import ExpenseChart from './ExpenseChart';
-
 function expensesToCSV(expenses) {
   const header = ['Date', 'Description', 'Amount'];
   const rows = expenses.map((exp) => [
