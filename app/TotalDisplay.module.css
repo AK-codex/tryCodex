@@ -1,10 +1,12 @@
 .tfoot td {
   font-weight: bold;
-  background: #f1f3f5;
+  background: color-mix(in srgb, var(--bg), var(--fg) 10%);
+  color: var(--fg);
 }
 
 .td {
   padding: 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid color-mix(in srgb, var(--bg), var(--fg) 20%);
   text-align: left;
+  color: var(--fg);
 }
