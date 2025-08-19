@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 
 class ErrorBoundary extends React.Component {
@@ -5,7 +7,7 @@ class ErrorBoundary extends React.Component {
     super(props);
     this.state = { hasError: false };
   }
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError() {
     return { hasError: true };
   }
   componentDidCatch(error, errorInfo) {
@@ -203,3 +205,4 @@ export default function Page() {
     </ErrorBoundary>
   );
 }
+
