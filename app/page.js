@@ -2,6 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import ExpenseChart from './ExpenseChart';
+function expensesToCSV(expenses) {
+  const header = ['Date', 'Description', 'Amount'];
+  const rows = expenses.map((exp) => [
+    new Date(exp.date).toISOString().split('T')[0],
+    `"${exp.description.replace(/"/g, '""')}"`,
+    exp.amount.toFixed(2),
+  ]);
+  return [header, ...rows].map((row) => row.join(',')).join('\n');
+}
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -100,6 +109,19 @@ function ExpenseDashboard() {
     setEditingId(exp.id);
   };
 
+  const downloadCSV = () => {
+    const csv = expensesToCSV(expenses);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'expenses.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p role="alert">Error: {error}</p>;
 
@@ -159,6 +181,7 @@ function ExpenseDashboard() {
           </tr>
         </tfoot>
       </table>
+      <button type="button" onClick={downloadCSV}>Download CSV</button>
       <style jsx>{`
         .container {
           font-family: Arial, sans-serif;
