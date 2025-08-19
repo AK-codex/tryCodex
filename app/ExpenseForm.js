@@ -7,6 +7,7 @@ export default function ExpenseForm({ onAdd }) {
   const [date, setDate] = useState('');
   const [desc, setDesc] = useState('');
   const [amount, setAmount] = useState('');
+  const [category, setCategory] = useState('');
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -15,9 +16,10 @@ export default function ExpenseForm({ onAdd }) {
 
   const handleSubmit = e => {
     e.preventDefault();
-    onAdd({ date, desc: desc.trim(), amount });
+    onAdd({ date, desc: desc.trim(), amount, category: category.trim() });
     setDesc('');
     setAmount('');
+    setCategory('');
   };
 
   return (
@@ -35,6 +37,14 @@ export default function ExpenseForm({ onAdd }) {
         placeholder="Description"
         value={desc}
         onChange={e => setDesc(e.target.value)}
+        required
+      />
+      <input
+        type="text"
+        className={styles.input}
+        placeholder="Category"
+        value={category}
+        onChange={e => setCategory(e.target.value)}
         required
       />
       <input
