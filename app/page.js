@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import ExpenseChart from './ExpenseChart';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -125,6 +126,7 @@ function ExpenseDashboard() {
           <option key={cat} value={cat}>{cat}</option>
         ))}
       </select>
+      <ExpenseChart expenses={displayed} />
       <table id="expense-table">
         <thead>
           <tr>
