@@ -2,22 +2,28 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
-  background: #fff;
+  background: color-mix(in srgb, var(--bg), var(--fg) 5%);
+  color: var(--fg);
 }
 
 .th, .td {
   padding: 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid color-mix(in srgb, var(--bg), var(--fg) 20%);
   text-align: left;
 }
 
 .th {
-  background: #e9ecef;
+  background: color-mix(in srgb, var(--bg), var(--fg) 10%);
 }
 
 .removeBtn {
-  color: #dc3545;
+  color: var(--accent);
   background: none;
   border: none;
   cursor: pointer;
+}
+
+.select {
+  margin-bottom: 10px;
+  padding: 5px;
 }
