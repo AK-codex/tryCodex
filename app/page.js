@@ -1,6 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import ExpenseChart from './ExpenseChart';
+
+function expensesToCSV(expenses) {
+  const header = ['Date', 'Description', 'Amount'];
+  const rows = expenses.map((exp) => [
+    new Date(exp.date).toISOString().split('T')[0],
+    `"${exp.description.replace(/"/g, '""')}"`,
+    exp.amount.toFixed(2),
+  ]);
+  return [header, ...rows].map((row) => row.join(',')).join('\n');
+}
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -28,9 +39,11 @@ function ExpenseDashboard() {
   const [form, setForm] = useState({
     date: new Date().toISOString().substr(0, 10),
     description: '',
-    amount: ''
+    amount: '',
+    category: ''
   });
   const [editingId, setEditingId] = useState(null);
+  const [categoryFilter, setCategoryFilter] = useState('');
 
   useEffect(() => {
     async function loadExpenses() {
@@ -69,7 +82,7 @@ function ExpenseDashboard() {
       } else {
         setExpenses((prev) => [saved, ...prev]);
       }
-      setForm({ date: new Date().toISOString().substr(0, 10), description: '', amount: '' });
+      setForm({ date: new Date().toISOString().substr(0, 10), description: '', amount: '', category: '' });
       setEditingId(null);
     } catch (err) {
       setError(err.message);
@@ -92,14 +105,30 @@ function ExpenseDashboard() {
       date: new Date(exp.date).toISOString().substr(0, 10),
       description: exp.description,
       amount: exp.amount.toString(),
+      category: exp.category,
     });
     setEditingId(exp.id);
+  };
+
+  const downloadCSV = () => {
+    const csv = expensesToCSV(expenses);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'expenses.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p role="alert">Error: {error}</p>;
 
-  const total = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const categories = Array.from(new Set(expenses.map(e => e.category)));
+  const displayed = categoryFilter ? expenses.filter(exp => exp.category === categoryFilter) : expenses;
+  const total = displayed.reduce((sum, exp) => sum + exp.amount, 0);
 
   return (
     <div className="container">
@@ -107,26 +136,36 @@ function ExpenseDashboard() {
       <form id="expense-form" onSubmit={handleSubmit}>
         <input type="date" id="date" value={form.date} onChange={handleChange} required />
         <input type="text" id="description" value={form.description} onChange={handleChange} placeholder="Description" required />
+        <input type="text" id="category" value={form.category} onChange={handleChange} placeholder="Category" required />
         <input type="number" id="amount" value={form.amount} onChange={handleChange} placeholder="Amount" min="0.01" step="0.01" required />
         <button type="submit">{editingId ? 'Update' : 'Add'} Expense</button>
         {editingId && (
-          <button type="button" onClick={() => { setEditingId(null); setForm({ date: new Date().toISOString().substr(0, 10), description: '', amount: '' }); }}>Cancel</button>
+          <button type="button" onClick={() => { setEditingId(null); setForm({ date: new Date().toISOString().substr(0, 10), description: '', amount: '', category: '' }); }}>Cancel</button>
         )}
       </form>
+      <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+        <option value="">All Categories</option>
+        {categories.map(cat => (
+          <option key={cat} value={cat}>{cat}</option>
+        ))}
+      </select>
+      <ExpenseChart expenses={displayed} />
       <table id="expense-table">
         <thead>
           <tr>
             <th>Date</th>
             <th>Description</th>
+            <th>Category</th>
             <th>Amount ($)</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {expenses.map((exp) => (
+          {displayed.map((exp) => (
             <tr key={exp.id}>
               <td>{new Date(exp.date).toLocaleDateString()}</td>
               <td>{exp.description}</td>
+              <td>{exp.category}</td>
               <td>${exp.amount.toFixed(2)}</td>
               <td>
                 <button onClick={() => editExpense(exp)}>Edit</button>
@@ -137,12 +176,13 @@ function ExpenseDashboard() {
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan="2">Total</td>
+            <td colSpan="3">Total</td>
             <td id="total">${total.toFixed(2)}</td>
             <td></td>
           </tr>
         </tfoot>
       </table>
+      <button type="button" onClick={downloadCSV}>Download CSV</button>
       <style jsx>{`
         .container {
           font-family: Arial, sans-serif;

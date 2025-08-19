@@ -6,7 +6,11 @@ export default async function handler(req, res) {
   switch (method) {
     case 'GET':
       try {
-        const expenses = await prisma.expense.findMany({ orderBy: { date: 'desc' } });
+        const { category } = req.query;
+        const expenses = await prisma.expense.findMany({
+          where: category ? { category } : undefined,
+          orderBy: { date: 'desc' },
+        });
         res.status(200).json(expenses);
       } catch (error) {
         res.status(500).json({ error: 'Failed to load expenses' });
@@ -14,12 +18,13 @@ export default async function handler(req, res) {
       break;
     case 'POST':
       try {
-        const { date, description, amount } = req.body;
+        const { date, description, amount, category } = req.body;
         const expense = await prisma.expense.create({
           data: {
             date: new Date(date),
             description,
             amount: parseFloat(amount),
+            category,
           },
         });
         res.status(201).json(expense);
@@ -29,13 +34,14 @@ export default async function handler(req, res) {
       break;
     case 'PUT':
       try {
-        const { id, date, description, amount } = req.body;
+        const { id, date, description, amount, category } = req.body;
         const expense = await prisma.expense.update({
           where: { id: parseInt(id, 10) },
           data: {
             date: new Date(date),
             description,
             amount: parseFloat(amount),
+            category,
           },
         });
         res.status(200).json(expense);
