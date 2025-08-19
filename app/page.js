@@ -29,9 +29,11 @@ function ExpenseDashboard() {
   const [form, setForm] = useState({
     date: new Date().toISOString().substr(0, 10),
     description: '',
-    amount: ''
+    amount: '',
+    category: ''
   });
   const [editingId, setEditingId] = useState(null);
+  const [categoryFilter, setCategoryFilter] = useState('');
 
   useEffect(() => {
     async function loadExpenses() {
@@ -70,7 +72,7 @@ function ExpenseDashboard() {
       } else {
         setExpenses((prev) => [saved, ...prev]);
       }
-      setForm({ date: new Date().toISOString().substr(0, 10), description: '', amount: '' });
+      setForm({ date: new Date().toISOString().substr(0, 10), description: '', amount: '', category: '' });
       setEditingId(null);
     } catch (err) {
       setError(err.message);
@@ -93,6 +95,7 @@ function ExpenseDashboard() {
       date: new Date(exp.date).toISOString().substr(0, 10),
       description: exp.description,
       amount: exp.amount.toString(),
+      category: exp.category,
     });
     setEditingId(exp.id);
   };
@@ -100,7 +103,9 @@ function ExpenseDashboard() {
   if (loading) return <p>Loading...</p>;
   if (error) return <p role="alert">Error: {error}</p>;
 
-  const total = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const categories = Array.from(new Set(expenses.map(e => e.category)));
+  const displayed = categoryFilter ? expenses.filter(exp => exp.category === categoryFilter) : expenses;
+  const total = displayed.reduce((sum, exp) => sum + exp.amount, 0);
 
   return (
     <div className="container">
@@ -108,27 +113,36 @@ function ExpenseDashboard() {
       <form id="expense-form" onSubmit={handleSubmit}>
         <input type="date" id="date" value={form.date} onChange={handleChange} required />
         <input type="text" id="description" value={form.description} onChange={handleChange} placeholder="Description" required />
+        <input type="text" id="category" value={form.category} onChange={handleChange} placeholder="Category" required />
         <input type="number" id="amount" value={form.amount} onChange={handleChange} placeholder="Amount" min="0.01" step="0.01" required />
         <button type="submit">{editingId ? 'Update' : 'Add'} Expense</button>
         {editingId && (
-          <button type="button" onClick={() => { setEditingId(null); setForm({ date: new Date().toISOString().substr(0, 10), description: '', amount: '' }); }}>Cancel</button>
+          <button type="button" onClick={() => { setEditingId(null); setForm({ date: new Date().toISOString().substr(0, 10), description: '', amount: '', category: '' }); }}>Cancel</button>
         )}
       </form>
-      <ExpenseChart expenses={expenses} />
+      <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+        <option value="">All Categories</option>
+        {categories.map(cat => (
+          <option key={cat} value={cat}>{cat}</option>
+        ))}
+      </select>
+      <ExpenseChart expenses={displayed} />
       <table id="expense-table">
         <thead>
           <tr>
             <th>Date</th>
             <th>Description</th>
+            <th>Category</th>
             <th>Amount ($)</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {expenses.map((exp) => (
+          {displayed.map((exp) => (
             <tr key={exp.id}>
               <td>{new Date(exp.date).toLocaleDateString()}</td>
               <td>{exp.description}</td>
+              <td>{exp.category}</td>
               <td>${exp.amount.toFixed(2)}</td>
               <td>
                 <button onClick={() => editExpense(exp)}>Edit</button>
@@ -139,7 +153,7 @@ function ExpenseDashboard() {
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan="2">Total</td>
+            <td colSpan="3">Total</td>
             <td id="total">${total.toFixed(2)}</td>
             <td></td>
           </tr>
