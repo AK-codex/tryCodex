@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import ExpenseChart from './ExpenseChart';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -113,6 +114,7 @@ function ExpenseDashboard() {
           <button type="button" onClick={() => { setEditingId(null); setForm({ date: new Date().toISOString().substr(0, 10), description: '', amount: '' }); }}>Cancel</button>
         )}
       </form>
+      <ExpenseChart expenses={expenses} />
       <table id="expense-table">
         <thead>
           <tr>
