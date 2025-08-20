@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import ExpenseChart from './ExpenseChart';
 function expensesToCSV(expenses) {
-  const header = ['Date', 'Description', 'Amount'];
+  const header = ['Date', 'Description', 'Category', 'Amount'];
   const rows = expenses.map((exp) => [
     new Date(exp.date).toISOString().split('T')[0],
     `"${exp.description.replace(/"/g, '""')}"`,
+    `"${(exp.category || '').replace(/"/g, '""')}"`,
     exp.amount.toFixed(2),
   ]);
   return [header, ...rows].map((row) => row.join(',')).join('\n');
@@ -186,10 +187,11 @@ function ExpenseDashboard() {
         .container {
           font-family: Arial, sans-serif;
           margin: 40px;
-          background: #f5f6fa;
+          background: var(--bg);
+          color: var(--fg);
         }
         h2 {
-          color: #333;
+          color: var(--accent);
         }
         #expense-form {
           margin-bottom: 20px;
@@ -198,36 +200,39 @@ function ExpenseDashboard() {
           padding: 8px;
           margin: 5px;
           border-radius: 4px;
-          border: 1px solid #ccc;
+          border: 1px solid var(--accent);
+          background: color-mix(in srgb, var(--bg), var(--fg) 5%);
+          color: var(--fg);
         }
         button {
-          background: #0d6efd;
-          color: #fff;
+          background: var(--accent);
+          color: var(--fg);
           border: none;
         }
         button:hover {
-          background: #0b5ed7;
+          background: color-mix(in srgb, var(--accent), black 10%);
         }
         table {
           width: 100%;
           border-collapse: collapse;
           margin-top: 15px;
-          background: #fff;
+          background: color-mix(in srgb, var(--bg), var(--fg) 5%);
+          color: var(--fg);
         }
         th, td {
           padding: 10px;
-          border-bottom: 1px solid #eee;
+          border-bottom: 1px solid color-mix(in srgb, var(--bg), var(--fg) 20%);
           text-align: left;
         }
         th {
-          background: #e9ecef;
+          background: color-mix(in srgb, var(--bg), var(--fg) 10%);
         }
         tfoot td {
           font-weight: bold;
-          background: #f1f3f5;
+          background: color-mix(in srgb, var(--bg), var(--fg) 10%);
         }
         .remove-btn {
-          color: #dc3545;
+          color: var(--accent);
           background: none;
           border: none;
           cursor: pointer;
